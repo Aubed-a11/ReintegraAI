@@ -1,0 +1,32 @@
+# Dependencies
+frontend/node_modules/
+backend/vendor/
+
+# Build
+frontend/dist/
+frontend/.vite/
+
+# Environment (secrets)
+.env
+*.env.local
+*.env.production
+
+# SQLite database (données locales)
+backend/database/*.db
+backend/database/*.db-shm
+backend/database/*.db-wal
+
+# Logs
+*.log
+backend/logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# PHP cache
+backend/*.cache

@@ -1,0 +1,15 @@
+{
+  "name": "HorizonAI Kiosque",
+  "short_name": "HorizonAI",
+  "description": "Kiosque OIM — Plan de retour personnalisé par IA",
+  "theme_color": "#0f3460",
+  "background_color": "#0f3460",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "start_url": "/kiosk",
+  "scope": "/",
+  "lang": "fr",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
