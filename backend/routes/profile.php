@@ -2,7 +2,14 @@
 declare(strict_types=1);
 
 class ProfileController {
+    // Pays d'origine : pays natal du migrant (vers lequel il retourne)
     private static array $PAYS  = ['Sénégal','Côte d\'Ivoire','Niger','Mali','Guinée','Burkina Faso','Cameroun','Togo','Bénin','Mauritanie','Maroc','Algérie'];
+    // Pays d'accueil : pays où la migration a été effectuée (depuis lequel il repart)
+    private static array $PAYS_ACCUEIL = [
+        'Maroc','Algérie','Libye','Tunisie','Mauritanie','Niger',
+        'France','Espagne','Italie','Belgique','Allemagne','Portugal',
+        'Turquie','Égypte','Autre',
+    ];
     private static array $AGES  = ['18-24','25-34','35-44','45-54','55+'];
     private static array $VULNS = ['SANTE_CHRONIQUE','FEMME_ENCEINTE','MINEUR_NON_ACCOMPAGNE','VICTIME_TRAITE','HANDICAP','SANTE_URGENTE','AUCUNE'];
     private static array $ALPHA = ['OUI','NON','PARTIEL'];
@@ -21,8 +28,11 @@ class ProfileController {
         $alpha = in_array($body['alphabetisation'] ?? 'OUI', self::$ALPHA) ? $body['alphabetisation'] : 'OUI';
         $infop = substr(sanitize($body['competences_informelles'] ?? ''), 0, 500);
 
+        $pays_accueil = in_array($body['pays_accueil'] ?? '', self::$PAYS_ACCUEIL) ? $body['pays_accueil'] : sanitize($body['pays_accueil'] ?? '');
+
         $id = DB::insert('profiles', [
-            'user_id'=>$auth['sub'], 'pays_origine'=>sanitize($body['pays_origine']), 'ville_retour'=>sanitize($body['ville_retour']),
+            'user_id'=>$auth['sub'], 'pays_origine'=>sanitize($body['pays_origine']), 'pays_accueil'=>$pays_accueil,
+            'ville_retour'=>sanitize($body['ville_retour']),
             'tranche_age'=>$body['tranche_age'], 'niveau_etudes'=>sanitize($body['niveau_etudes']),
             'annees_experience'=>sanitize($body['annees_experience']??''), 'situation_familiale'=>sanitize($body['situation_familiale']??''),
             'competences'=>json_encode($comps,JSON_UNESCAPED_UNICODE),
@@ -52,7 +62,7 @@ class ProfileController {
         if(!$p) response_error(404,'not_found','Profil introuvable');
 
         $sets=[]; $params=[];
-        foreach(['pays_origine','ville_retour','niveau_etudes','annees_experience','situation_familiale'] as $f) {
+        foreach(['pays_origine','pays_accueil','ville_retour','niveau_etudes','annees_experience','situation_familiale'] as $f) {
             if(isset($body[$f])){$sets[]="{$f}=?";$params[]=sanitize($body[$f]);}
         }
         if(isset($body['tranche_age'])&&in_array($body['tranche_age'],self::$AGES)){$sets[]="tranche_age=?";$params[]=$body['tranche_age'];}
@@ -91,13 +101,14 @@ class ProfileController {
 
     private static function calc_completion(array $d): int {
         $fields = [
-            'pays_origine'       => 10,
-            'ville_retour'       => 10,
-            'tranche_age'        => 10,
-            'niveau_etudes'      => 10,
-            'situation_familiale'=> 10,
-            'annees_experience'  => 10,
-            'langue'             => 10,
+            'pays_origine'       => 8,
+            'pays_accueil'       => 8,
+            'ville_retour'       => 8,
+            'tranche_age'        => 8,
+            'niveau_etudes'      => 8,
+            'situation_familiale'=> 8,
+            'annees_experience'  => 8,
+            'langue'             => 8,
             'objectifs'          => 5,
             'besoins'            => 5,
             'contraintes'        => 5,

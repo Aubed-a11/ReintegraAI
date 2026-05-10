@@ -351,6 +351,7 @@ class DB {
                 'langue TEXT', 'objectifs TEXT', 'besoins TEXT', 'contraintes TEXT', 'sante TEXT', 'enfants INTEGER',
                 "alphabetisation TEXT NOT NULL DEFAULT 'OUI'",
                 'competences_informelles TEXT NOT NULL DEFAULT \'\'',
+                "pays_accueil TEXT NOT NULL DEFAULT ''",
             ],
             'plans' => [
                 'pdf_generated_at TEXT',

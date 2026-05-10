@@ -4,7 +4,10 @@ import { useNavigate } from 'react-router-dom'
 import { Button, Card, SectionHeader } from '../components/ui'
 import { useApp } from '../context/AppContext'
 
-const PAYS = ['Sénégal','Côte d\'Ivoire','Niger','Mali','Guinée','Burkina Faso','Cameroun','Togo','Bénin','Mauritanie']
+// Pays natal (vers lequel le migrant retourne)
+const PAYS = ['Sénégal','Côte d\'Ivoire','Niger','Mali','Guinée','Burkina Faso','Cameroun','Togo','Bénin','Mauritanie','Maroc','Algérie']
+// Pays où la migration a été effectuée (depuis lequel le migrant repart)
+const PAYS_ACCUEIL = ['Maroc','Algérie','Libye','Tunisie','Mauritanie','Niger','France','Espagne','Italie','Belgique','Allemagne','Portugal','Turquie','Égypte','Autre']
 const AGES = ['18-24','25-34','35-44','45-54','55+']
 const ETUDES = ['Sans diplôme','Primaire','Collège','Bac','Bac +2','Bac +3','Bac +5','Doctorat']
 const EXPS = ['Moins de 2 ans','2-5 ans','5-10 ans','Plus de 10 ans']
@@ -26,7 +29,7 @@ export default function ProfilePage() {
   const navigate = useNavigate()
 
   const [form, setForm] = useState({
-    pays_origine: '', ville_retour: '', tranche_age: '',
+    pays_origine: '', pays_accueil: '', ville_retour: '', tranche_age: '',
     situation_familiale: '', niveau_etudes: '', annees_experience: '',
     langue: '', objectifs: '', besoins: '', contraintes: '', sante: '',
     enfants: '', competences: [], vulnerabilites: [],
@@ -41,6 +44,7 @@ export default function ProfilePage() {
     if (profile) {
       setForm({
         pays_origine:             profile.pays_origine             || '',
+        pays_accueil:             profile.pays_accueil             || '',
         ville_retour:             profile.ville_retour             || '',
         tranche_age:              profile.tranche_age              || '',
         situation_familiale:      profile.situation_familiale      || '',
@@ -123,16 +127,25 @@ export default function ProfilePage() {
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--blue)', marginBottom: 18, paddingBottom: 10, borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 7 }}>
             <span>👤</span> Informations personnelles
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-            <Field label="Pays d'origine *">
+          {/* Ligne pays : 3 champs sur une ligne */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <Field label="Pays d'origine *" hint="Pays natal — vers lequel vous retournez">
               <select style={selectStyle} value={form.pays_origine} onChange={e => set('pays_origine', e.target.value)}>
                 <option value="">Sélectionner...</option>
                 {PAYS.map(p => <option key={p}>{p}</option>)}
               </select>
             </Field>
-            <Field label="Ville de retour *">
-              <input style={inputStyle} placeholder="Ex: Dakar, Abidjan..." value={form.ville_retour} onChange={e => set('ville_retour', e.target.value)} />
+            <Field label="Pays de migration *" hint="Pays où vous étiez avant le retour">
+              <select style={selectStyle} value={form.pays_accueil} onChange={e => set('pays_accueil', e.target.value)}>
+                <option value="">Sélectionner...</option>
+                {PAYS_ACCUEIL.map(p => <option key={p}>{p}</option>)}
+              </select>
             </Field>
+            <Field label="Ville de retour *" hint="Ville dans votre pays d'origine">
+              <input style={inputStyle} placeholder="Ex: Dakar, Bamako..." value={form.ville_retour} onChange={e => set('ville_retour', e.target.value)} />
+            </Field>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
             <Field label="Tranche d'âge *">
               <select style={selectStyle} value={form.tranche_age} onChange={e => set('tranche_age', e.target.value)}>
                 <option value="">Sélectionner...</option>
@@ -297,11 +310,12 @@ export default function ProfilePage() {
 }
 
 // ── Sous-composants ───────────────────────────────────────────
-function Field({ label, children }) {
+function Field({ label, hint, children }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
       <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '.06em' }}>{label}</label>
       {children}
+      {hint && <span style={{ fontSize: 10, color: 'var(--muted)', marginTop: 1 }}>{hint}</span>}
     </div>
   )
 }
