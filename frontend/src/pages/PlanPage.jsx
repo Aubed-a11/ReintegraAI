@@ -4,7 +4,27 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { Button, Card, EmptyState, ScoreRing, StatusPill, Tag } from '../components/ui'
 import { useApp } from '../context/AppContext'
+import { useSpeech } from '../hooks/useSpeech'
 import { planApi } from '../services/api'
+
+function SpeakerIcon() {
+  return (
+    <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+    </svg>
+  )
+}
+
+function PauseIcon() {
+  return (
+    <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <rect x="6" y="4" width="4" height="16"/>
+      <rect x="14" y="4" width="4" height="16"/>
+    </svg>
+  )
+}
 
 const AXE_CONFIG = {
   emploi:   { label: 'Emploi & Formation', color: 'var(--blue-mid)', bg: 'var(--blue-light)',  icon: '💼', num: 1 },
@@ -21,13 +41,30 @@ const LOADING_STEPS = [
   { text: 'Structuration du plan en 4 axes...', delay: 4000 },
 ]
 
+// Compose le texte intégral du plan pour la lecture TTS
+function buildPlanText(plan, axes) {
+  const parts = []
+  if (plan.resume_global) parts.push(plan.resume_global)
+  Object.entries(axes).forEach(([, axe]) => {
+    if (!axe?.items?.length) return
+    parts.push(axe.label || '')
+    axe.items.forEach(item => {
+      parts.push(item.titre + '. ' + (item.description || ''))
+    })
+  })
+  if (plan.prochaine_etape) parts.push('Prochaine étape. ' + plan.prochaine_etape)
+  return parts.join('. ')
+}
+
 export default function PlanPage() {
-  const { plan, planId, loading, generatePlan, profile } = useApp()
+  const { plan, planId, loading, generatePlan, profile, lang } = useApp()
   const navigate   = useNavigate()
   const [expanded, setExpanded]     = useState({ emploi: true })
   const [loadStep,  setLoadStep]    = useState(0)
   const [generating, setGenerating] = useState(false)
   const [pdfLoading, setPdfLoading] = useState(false)
+
+  const { speak, stopSpeaking, speaking, supported } = useSpeech(lang || 'fr')
 
   // Simuler les étapes de chargement
   useEffect(() => {
@@ -193,6 +230,39 @@ export default function PlanPage() {
             <p style={{ marginTop: 12, fontSize: 13, color: 'var(--mid)', lineHeight: 1.6, maxWidth: 560, padding: '10px 14px', background: 'var(--sand)', borderRadius: 9, borderLeft: '3px solid var(--blue-mid)' }}>
               {plan.resume_global}
             </p>
+          )}
+
+          {/* Bouton écouter */}
+          {supported && (
+            <div style={{ marginTop: 14 }}>
+              {speaking ? (
+                <button
+                  onClick={stopSpeaking}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 7,
+                    padding: '8px 16px', borderRadius: 20,
+                    border: '1.5px solid #e53935', background: '#fdecea',
+                    color: '#c62828', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                  }}
+                >
+                  <PauseIcon />
+                  Arrêter la lecture
+                </button>
+              ) : (
+                <button
+                  onClick={() => speak(buildPlanText(plan, axes))}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 7,
+                    padding: '8px 16px', borderRadius: 20,
+                    border: '1.5px solid var(--blue-mid)', background: 'var(--blue-light)',
+                    color: 'var(--blue)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                  }}
+                >
+                  <SpeakerIcon />
+                  Écouter mon plan
+                </button>
+              )}
+            </div>
           )}
         </div>
         <ScoreRing score={score} size={96} />
