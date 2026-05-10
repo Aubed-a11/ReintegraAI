@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { planApi, statsApi } from '../services/api'
 import { useApp } from '../context/AppContext'
 import { Button, Card, StatusPill, Tag, ScoreRing, Skeleton, EmptyState } from '../components/ui'
@@ -7,6 +8,7 @@ import toast from 'react-hot-toast'
 
 export default function DashboardPage() {
   const { user } = useApp()
+  const navigate = useNavigate()
   const [plans,    setPlans]    = useState([])
   const [stats,    setStats]    = useState(null)
   const [selected, setSelected] = useState(null)  // plan sélectionné
@@ -104,6 +106,59 @@ export default function DashboardPage() {
           ↻ Actualiser
         </Button>
       </div>
+
+      {/* ── Bannière Kiosque OIM ─────────────────────────────── */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+        style={{
+          background: 'linear-gradient(135deg, #0f3460 0%, #1a6fa8 100%)',
+          borderRadius: 'var(--r-lg)', padding: '22px 28px', marginBottom: 22,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          gap: 20, position: 'relative', overflow: 'hidden',
+        }}>
+        {/* Décorations */}
+        <div style={{ position: 'absolute', right: -40, top: -40, width: 180, height: 180, borderRadius: '50%', background: 'rgba(255,255,255,.05)' }} />
+        <div style={{ position: 'absolute', right: 60, bottom: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(196,122,53,.15)' }} />
+
+        <div style={{ position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+            <span style={{ fontSize: 22 }}>🎙</span>
+            <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Kiosque HorizonAI</span>
+            <span style={{
+              background: 'var(--ocre)', color: 'white', fontSize: 10, fontWeight: 700,
+              padding: '2px 8px', borderRadius: 20, letterSpacing: '.06em',
+            }}>NOUVEAU</span>
+          </div>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,.65)', maxWidth: 520, lineHeight: 1.6, margin: 0 }}>
+            Accueillez un migrant en entretien oral assisté par IA — 8 langues, reconnaissance vocale,
+            génération automatique du plan de retour. Fonctionne même hors connexion.
+          </p>
+          <div style={{ display: 'flex', gap: 16, marginTop: 10 }}>
+            {['10 étapes guidées', '8 langues dont WO · BM · HA', 'Mode offline'].map(f => (
+              <span key={f} style={{ fontSize: 11, color: 'rgba(255,255,255,.5)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ color: 'var(--ocre)' }}>✓</span> {f}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <motion.button
+            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+            onClick={() => navigate('/kiosk')}
+            style={{
+              padding: '14px 28px', borderRadius: 12, fontSize: 14, fontWeight: 700,
+              cursor: 'pointer', border: 'none',
+              background: 'linear-gradient(135deg, var(--ocre), #e8973f)',
+              color: 'white', boxShadow: '0 6px 20px rgba(196,122,53,.4)',
+              whiteSpace: 'nowrap',
+            }}>
+            ▶ Ouvrir le kiosque
+          </motion.button>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,.35)', textAlign: 'center', marginTop: 6 }}>
+            Plein écran · Sans connexion requise
+          </div>
+        </div>
+      </motion.div>
 
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 22 }}>

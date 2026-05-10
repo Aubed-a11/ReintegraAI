@@ -10,6 +10,8 @@ const PAGE_TITLES = {
   '/plan':      'Mon Plan de Réintégration',
   '/chat':      'Assistant IA',
   '/dashboard': 'Dashboard Agent OIM',
+  '/kiosk':     'Kiosque Oral — Accueil Migrant',
+  '/admin':     'Administration',
 }
 
 const LANGS = [
