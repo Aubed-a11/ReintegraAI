@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { interviewApi } from '../services/api'
+import { devicesApi, interviewApi } from '../services/api'
 import { useSpeech } from '../hooks/useSpeech'
 import { useOfflineSync } from '../hooks/useOfflineSync'
 import { offlineStore } from '../services/offlineStore'
 
-const DEVICE_TOKEN = import.meta.env.VITE_KIOSK_TOKEN || 'DEMO_KIOSK_TOKEN'
+// Token depuis URL (?token=hzn_xxx) ou variable d'environnement ou démo
+function getDeviceToken() {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('token') || import.meta.env.VITE_KIOSK_TOKEN || 'DEMO_KIOSK_TOKEN'
+}
+const DEVICE_TOKEN = getDeviceToken()
+const INACTIVITY_TIMEOUT_MS = 3 * 60 * 1000  // 3 minutes → screensaver
+const PING_INTERVAL_MS      = 60 * 1000       // ping serveur toutes les 60s
 
 const LANGS = [
   { code: 'fr',  label: 'Français',  flag: '🇫🇷', nativeTTS: true  },
@@ -120,8 +127,7 @@ const FALLBACK_QUESTIONS = {
 
 const ETAPES_ORDER = ['BIENVENUE','IDENTITE','VILLE','FAMILLE','EDUCATION','COMPETENCES','OBJECTIFS','SANTE','CONTACT','RECAPITULATIF']
 
-// ── Phases : PRE_LAUNCH = écran agent avant de donner la borne au migrant
-// THINKING | SPEAKING | LISTENING | DONE | ERROR
+// ── Phases : PRE_LAUNCH → THINKING → SPEAKING → LISTENING → DONE | ERROR | SCREENSAVER
 
 export default function KioskPage() {
   const navigate = useNavigate()
@@ -133,17 +139,55 @@ export default function KioskPage() {
   const [stepNum, setStepNum]     = useState(0)
   const [stepTotal, setStepTotal] = useState(10)
   const [rdvInfo, setRdvInfo]     = useState(null)
+  const [deviceInfo, setDeviceInfo] = useState(null) // nom + lieu de la borne
 
-  const speech              = useSpeech(lang)
-  const { isOnline, syncNow } = useOfflineSync()
-  const autoListenRef       = useRef(null)
-  const silenceRef          = useRef(null)
+  const speech                    = useSpeech(lang)
+  const { isOnline, syncNow }     = useOfflineSync()
+  const autoListenRef             = useRef(null)
+  const silenceRef                = useRef(null)
+  const pingRef                   = useRef(null)
+  const inactivityRef             = useRef(null)
 
-  // Nettoyage timers au démontage
+  // ── Ping heartbeat (objet connecté) ────────────────────────
+  useEffect(() => {
+    const doPing = async () => {
+      try {
+        const res = await devicesApi.ping(DEVICE_TOKEN)
+        if (res.ok && res.data?.data?.device) {
+          setDeviceInfo(res.data.data.device)
+        }
+      } catch {}
+    }
+    doPing() // ping immédiat au démarrage
+    pingRef.current = setInterval(doPing, PING_INTERVAL_MS)
+    return () => clearInterval(pingRef.current)
+  }, [])
+
+  // ── Détection inactivité → screensaver ──────────────────────
+  const resetInactivity = useCallback(() => {
+    clearTimeout(inactivityRef.current)
+    if (phase !== 'PRE_LAUNCH' && phase !== 'DONE' && phase !== 'SCREENSAVER') {
+      inactivityRef.current = setTimeout(() => setPhase('SCREENSAVER'), INACTIVITY_TIMEOUT_MS)
+    }
+  }, [phase])
+
+  useEffect(() => {
+    const events = ['mousedown','touchstart','keydown']
+    events.forEach(e => window.addEventListener(e, resetInactivity))
+    resetInactivity()
+    return () => {
+      events.forEach(e => window.removeEventListener(e, resetInactivity))
+      clearTimeout(inactivityRef.current)
+    }
+  }, [resetInactivity])
+
+  // ── Nettoyage timers au démontage ──────────────────────────
   useEffect(() => () => {
     speech.reset()
     clearTimeout(autoListenRef.current)
     clearTimeout(silenceRef.current)
+    clearTimeout(inactivityRef.current)
+    clearInterval(pingRef.current)
   }, [])
 
   // Auto-écoute après fin du TTS
@@ -246,6 +290,49 @@ export default function KioskPage() {
   const currentLang = LANGS.find(l => l.code === lang)
 
   // ════════════════════════════════════════════════════════
+  // ÉCRAN SCREENSAVER — après 3 min d'inactivité
+  // ════════════════════════════════════════════════════════
+  if (phase === 'SCREENSAVER') {
+    return (
+      <div
+        onClick={() => setPhase('PRE_LAUNCH')}
+        style={{
+          minHeight: '100vh', cursor: 'pointer',
+          background: 'linear-gradient(160deg, #060e1a 0%, #0a2040 50%, #0f3460 100%)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        }}>
+        <motion.div
+          animate={{ opacity: [0.4, 1, 0.4], scale: [0.97, 1.02, 0.97] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ textAlign: 'center' }}>
+          <img src="/logo.svg" alt="HorizonAI" style={{ width: 80, height: 80, borderRadius: 20, marginBottom: 24, opacity: 0.6 }} />
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 36, color: 'rgba(255,255,255,.4)', fontWeight: 700, marginBottom: 12 }}>
+            HorizonAI
+          </h2>
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,.25)' }}>
+            Touchez l'écran pour commencer
+          </p>
+          {deviceInfo && (
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,.15)', marginTop: 8 }}>
+              {deviceInfo.nom} {deviceInfo.lieu && `· ${deviceInfo.lieu}`}
+            </p>
+          )}
+        </motion.div>
+
+        {/* Onde décorative */}
+        <div style={{ position: 'absolute', bottom: 40, display: 'flex', gap: 6, alignItems: 'center' }}>
+          {Array.from({ length: 7 }).map((_, i) => (
+            <motion.div key={i}
+              animate={{ height: [8, 22 + i * 4, 8], opacity: [0.1, 0.3, 0.1] }}
+              transition={{ duration: 2 + i * 0.3, repeat: Infinity, delay: i * 0.2 }}
+              style={{ width: 4, borderRadius: 4, background: 'rgba(196,122,53,.5)' }} />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // ════════════════════════════════════════════════════════
   // ÉCRAN PRE-LANCEMENT — visible par l'agent OIM seulement
   // ════════════════════════════════════════════════════════
   if (phase === 'PRE_LAUNCH') {
@@ -281,6 +368,16 @@ export default function KioskPage() {
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,.5)', marginTop: 6 }}>
             Entretien oral assisté par IA — Accueil migrant
           </p>
+          {deviceInfo && (
+            <div style={{
+              marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: 'rgba(14,159,110,.15)', border: '1px solid rgba(14,159,110,.3)',
+              borderRadius: 20, padding: '4px 14px', fontSize: 11, color: 'rgba(255,255,255,.6)',
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
+              {deviceInfo.nom}{deviceInfo.lieu && ` · ${deviceInfo.lieu}`}
+            </div>
+          )}
         </motion.div>
 
         {/* Encart instructions pour l'agent */}

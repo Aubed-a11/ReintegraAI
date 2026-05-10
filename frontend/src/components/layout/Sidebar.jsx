@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { path: '/chat',      label: 'Assistant IA',  icon: ChatIcon,     roles: ['MIGRANT','AGENT','SUPERVISEUR','ADMIN'] },
   { path: '/dashboard', label: 'Dashboard OIM', icon: GridIcon,     roles: ['AGENT','SUPERVISEUR','ADMIN'] },
   { path: '/kiosk',     label: 'Kiosque Oral',  icon: KioskIcon,    roles: ['AGENT','SUPERVISEUR','ADMIN'] },
+  { path: '/devices',   label: 'Bornes IoT',    icon: DeviceIcon,   roles: ['ADMIN','SUPERVISEUR'] },
   { path: '/admin',     label: 'Admin',         icon: AdminIcon,    roles: ['ADMIN','SUPERVISEUR'] },
 ]
 
@@ -166,4 +167,5 @@ function ChatIcon()   { return <svg {...s}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V
 function GridIcon()   { return <svg {...s}><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> }
 function AdminIcon()  { return <svg {...s}><path d="M12 1l3 6 6 3-6 3-3 6-3-6-6-3 6-3z"/><circle cx="12" cy="12" r="3"/></svg> }
 function KioskIcon()  { return <svg {...s}><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><circle cx="12" cy="10" r="2"/><path d="M7 10h1M16 10h1"/></svg> }
+function DeviceIcon() { return <svg {...s}><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/><circle cx="12" cy="18" r="1" fill="currentColor"/><path d="M9 7h6M9 11h4"/></svg> }
 function LogoutIcon() { return <svg {...s}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> }

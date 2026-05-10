@@ -156,3 +156,15 @@ export const interviewApi = {
   abandon: (id, device_token)                    => kioskReq('POST', `/interview/${id}/abandon`,    null,           device_token),
   sync:    (sessions, device_token)              => kioskReq('POST', '/interview/sync',             { sessions },   device_token),
 }
+
+// ── Devices (bornes kiosque) ───────────────────────────────────
+export const devicesApi = {
+  list:        ()              => get('/devices'),
+  stats:       ()              => get('/devices/stats'),
+  create:      (data)          => post('/devices', data),
+  get:         (id)            => get(`/devices/${id}`),
+  update:      (id, data)      => put(`/devices/${id}`, data),
+  delete:      (id)            => del(`/devices/${id}`),
+  rotateToken: (id)            => post(`/devices/${id}/rotate-token`),
+  ping:        (device_token)  => kioskReq('POST', '/devices/ping', null, device_token),
+}

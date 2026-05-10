@@ -14,6 +14,7 @@ require_once __DIR__ . '/../routes/other.php';
 require_once __DIR__ . '/../routes/admin.php';
 require_once __DIR__ . '/../services/InterviewAgent.php';
 require_once __DIR__ . '/../routes/interview.php';
+require_once __DIR__ . '/../routes/devices.php';
 
 set_exception_handler(function(\Throwable $e): void {
     error_log('[UNCAUGHT] ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());

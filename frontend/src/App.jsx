@@ -5,6 +5,7 @@ import Topbar from './components/layout/Topbar'
 import { Spinner } from './components/ui'
 import { AppProvider, useApp } from './context/AppContext'
 import AdminDashboard from './pages/AdminDashboard'
+import DevicesPage from './pages/DevicesPage'
 import KioskPage from './pages/KioskPage'
 import ChatPage from './pages/ChatPage'
 import DashboardPage from './pages/DashboardPage'
@@ -59,6 +60,7 @@ function AppLayout() {
             <Route path="/plan"      element={<PlanPage />} />
             <Route path="/chat"      element={<ChatPage />} />
             <Route path="/dashboard" element={<RequireAgent><DashboardPage /></RequireAgent>} />
+            <Route path="/devices"   element={<RequireAdmin><DevicesPage /></RequireAdmin>} />
             <Route path="/admin"     element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
             <Route path="*"          element={<Navigate to="/" replace />} />
           </Routes>

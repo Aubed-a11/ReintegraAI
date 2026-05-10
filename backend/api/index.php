@@ -156,6 +156,19 @@ try {
         };
     }
 
+    // ── DEVICES (bornes kiosque) ───────────────────────────────
+    elseif ($s0 === 'devices') {
+        if (empty($s1) && $method === 'GET')                            DeviceController::list();
+        elseif (empty($s1) && $method === 'POST')                       DeviceController::create();
+        elseif ($s1 === 'ping'  && $method === 'POST')                  DeviceController::ping();
+        elseif ($s1 === 'stats' && $method === 'GET')                   DeviceController::stats();
+        elseif ($s1id && empty($s2)           && $method === 'GET')     DeviceController::get($s1);
+        elseif ($s1id && empty($s2)           && $method === 'PUT')     DeviceController::update($s1);
+        elseif ($s1id && empty($s2)           && $method === 'DELETE')  DeviceController::delete($s1);
+        elseif ($s1id && $s2 === 'rotate-token' && $method === 'POST')  DeviceController::rotate_token($s1);
+        else not_found($method, $uri);
+    }
+
     // ── FOLLOW-UP ─────────────────────────────────────────────
     elseif ($s0 === 'follow-up') {
         if (empty($s1) && $method === 'POST')        FollowUpController::create();
