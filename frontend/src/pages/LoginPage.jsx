@@ -132,13 +132,20 @@ export default function LoginPage() {
         <div style={{ position: 'absolute', top: -40, right: -40, width: 320, height: 320, borderRadius: '50%', background: 'rgba(255,255,255,.08)', filter: 'blur(4px)' }} />
         <div style={{ position: 'absolute', bottom: -60, left: -20, width: 240, height: 240, borderRadius: '50%', background: 'rgba(255,255,255,.06)', filter: 'blur(2px)' }} />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 52, position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 52, position: 'relative' }}>
           <img
             src="/logo.svg"
             alt="HorizonAI"
-            style={{ width: 48, height: 48, borderRadius: 12, objectFit: 'contain' }}
+            style={{ width: 52, height: 52, borderRadius: 13, objectFit: 'contain', flexShrink: 0 }}
           />
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: '#fff' }}>HorizonAI</span>
+          <div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: '#fff', lineHeight: 1.1 }}>
+              Horizon <span style={{ color: '#6aaee8' }}>AI</span>
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,.45)', letterSpacing: '.06em', marginTop: 3 }}>
+              Intelligence · Réintégration · Impact
+            </div>
+          </div>
         </div>
 
         <motion.div

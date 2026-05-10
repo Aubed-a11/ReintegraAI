@@ -53,11 +53,16 @@ export default function Sidebar() {
           <img
             src="/logo.svg"
             alt="HorizonAI"
-            style={{ width: 38, height: 38, borderRadius: 10, objectFit: 'contain' }}
+            style={{ width: 38, height: 38, borderRadius: 10, objectFit: 'contain', flexShrink: 0 }}
           />
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 19, fontWeight: 700, color: '#fff' }}>
-            HorizonAI
-          </span>
+          <div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: '#fff', lineHeight: 1.1 }}>
+              Horizon <span style={{ color: '#6aaee8' }}>AI</span>
+            </div>
+            <div style={{ fontSize: 9.5, color: 'rgba(255,255,255,.35)', letterSpacing: '.05em', marginTop: 1 }}>
+              Intelligence · Réintégration
+            </div>
+          </div>
         </div>
 
         {/* User card */}

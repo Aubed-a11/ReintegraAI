@@ -358,15 +358,21 @@ export default function KioskPage() {
         {/* Logo + titre */}
         <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}
           style={{ textAlign: 'center', marginBottom: 36 }}>
-          <img src="/logo.svg" alt="HorizonAI" style={{ width: 56, height: 56, borderRadius: 14, marginBottom: 14 }} />
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: 'var(--ocre)', textTransform: 'uppercase', marginBottom: 6 }}>
+          <img src="/logo.svg" alt="HorizonAI" style={{ width: 64, height: 64, borderRadius: 16, marginBottom: 10 }} />
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'white', marginBottom: 2 }}>
+            Horizon <span style={{ color: '#6aaee8' }}>AI</span>
+          </div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.38)', letterSpacing: '.07em', marginBottom: 14 }}>
+            Intelligence · Réintégration · Impact
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.14em', color: 'var(--ocre)', textTransform: 'uppercase', marginBottom: 6 }}>
             OIM Maroc × BAIC — Programme AVRR 2026
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 30, color: 'white', fontWeight: 700, margin: 0 }}>
-            Kiosque HorizonAI
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 26, color: 'white', fontWeight: 700, margin: 0 }}>
+            Kiosque d'accueil migrant
           </h1>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,.5)', marginTop: 6 }}>
-            Entretien oral assisté par IA — Accueil migrant
+            Entretien oral assisté par IA
           </p>
           {deviceInfo && (
             <div style={{
